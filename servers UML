@@ -1,9 +1,9 @@
 @startuml
 class Product {
-- name_: str
-- price_: double
++ name: str
++ price: double
 
-+ __init__(self, name: str, price: double)
++ __init__(self, name_: str, price_: double)
 + get_price(): double
 + get_name(): str
 }
@@ -24,33 +24,35 @@ ServerErr <|-- TooManyProductsFoundError
 Exceptions <|-- ServerErr
 
 abstract class Server {
-- n_max_returned_entries_: int
++ n_max_returned_entries: int
 + {abstract} search_in_products(n: int): List[Product]
 + {abstract} to_many_products_error(): ToManyProductsFoundError
 }
 
 class ListServer {
-- products_list_: List[Product]
-+ __init__(self, products_list: List[Product], n_max_returned_entries: int)
-+ search_in_products(n: int): List[Product]
++ products_list: List[Product]
++ __init__(self, products_list: List[Product])
++ search_in_products(n_letters: int): List[Product]
 + to_many_products_error(): ToManyProductsFoundError
 }
 
 class MapServer {
-- products_dict_: Dict[Product]
-+ __init__(self, products_dict: Dict[Product], n_max_returned_entries: int)
-+ search_in_products(n: int): Dict[str ,Product]
++ products_dict: Dict[Product]
++ __init__(self, products_list: List[Product])
++ search_in_products(n_letters: int): Dict[str ,Product]
 + to_many_products_error(): ToManyProductsFoundError
 }
 
 class Client {
-- server_: Server
-+ cost_of_all(n: int):
++ server_: Server
++ __init__(self, server_: Server)
++ get_total_price(n_letters: int):
 }
 
 Server <|-- ListServer
 Server <|-- MapServer
 ListServer *-- Product
 MapServer *-- Product
-Server ..> TooManyProductsFoundError : << uses >> Client o-- Server
+Client o-- Server
+Server ..> TooManyProductsFoundError : << uses >> 
 @enduml
