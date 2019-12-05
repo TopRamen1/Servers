@@ -1,37 +1,58 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 import unittest
 from collections import Counter
 
 from servers import ListServer, Product, Client, MapServer, TooManyProductsFoundError
 
+server_types = (ListServer, MapServer)
+
 
 class ServerTest(unittest.TestCase):
 
-    def test_List_Server_get_entries_returns_proper_entries(self):
+    def test_get_entries_returns_proper_entries(self):
         products = [Product('P12', 1), Product('PP234', 2), Product('PP235', 1)]
+        for server_type in server_types:
+            server = server_type(products)
+            entries = server.get_entries(2)
+            self.assertEqual(Counter([products[2], products[1]]), Counter(entries))
 
-        server = ListServer(products, 2)
-        entries = server.get_entries(2)
-        self.assertEqual(Counter([products[2], products[1]]), Counter(entries))
-
-    def test_List_Server_get_entries_returns_empty_list(self):
+    def test_get_entries_returns_empty_list(self):
         products = [Product('P12', 1), Product('PP234', 2), Product('PP235', 1)]
+        for server_type in server_types:
+            server = server_type(products)
+            entries = server.get_entries(3)
+            self.assertEqual(Counter([]), Counter(entries))
 
-        server = ListServer(products)
-        entries = server.get_entries(3)
-        self.assertEqual(Counter([]), Counter(entries))
+    def test_get_entries_exception_occurs(self):
+        products = [Product('P12', 1), Product('PP234', 2), Product('PP235', 1), Product('PP24', 2), Product('PP34', 2)]
+        for server_type in server_types:
+            server = server_type(products)
+            try:
+                is_exception = False
+                entries = server.get_entries(2)
 
-    def test_List_Server_get_entries_raises_error(self):
-        products = [Product('P12', 1), Product('PP234', 2), Product('PP235', 1)]
+            except TooManyProductsFoundError:
+                is_exception = True
 
-        server = ListServer(products)
+            finally:
+                self.assertEqual(is_exception, True)
 
-        with self.assertRaises(Exception) as context:
-            server.get_entries(2)
 
-        self.assertTrue("To many products found" in str(context.exception))
+class ClientTest(unittest.TestCase):
+    def test_total_price_for_normal_execution(self):
+        products = [Product('PP234', 2), Product('PP235', 3)]
+        for server_type in server_types:
+            server = server_type(products)
+            client = Client(server)
+            self.assertEqual(5, client.get_total_price(2))
+
+    def test_total_price_for_exception_occurs(self):
+        products = [Product('PP234', 2), Product('PP235', 3)]
+        for server_type in server_types:
+            server = server_type(products)
+            client = Client(server)
+            self.assertEqual(5, client.get_total_price(2))
+
 
 if __name__ == '__main__':
     unittest.main()
+
