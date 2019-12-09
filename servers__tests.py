@@ -1,7 +1,7 @@
 import unittest
 from collections import Counter
 
-from serverls import ListServer, Product, Client, MapServer, TooManyProductsFoundError
+from servers import ListServer, Product, Client, MapServer, TooManyProductsFoundError, quicksort
 
 server_types = (ListServer, MapServer)
 
@@ -13,7 +13,7 @@ class ServerTest(unittest.TestCase):
         for server_type in server_types:
             server = server_type(products)
             entries = server.get_entries(2)
-            self.assertEqual(Counter([products[2], products[1]]), Counter(entries))
+            self.assertListEqual([products[2], products[1]], entries)
 
     def test_get_entries_returns_empty_list(self):
         products = [Product('P12', 1), Product('PP234', 2), Product('PP235', 1)]
@@ -46,12 +46,12 @@ class ClientTest(unittest.TestCase):
             client = Client(server)
             self.assertEqual(0, client.get_total_price(3))
 
-    def test_total_price_for_exception_occurs(self):
-        products = [Product('PP234', 2), Product('PP235', 3)]
+    def test_total_price_for_None(self):
+        products = [Product('P12', 1), Product('PP234', 2), Product('PP235', 1), Product('PP24', 2), Product('PP34', 2)]
         for server_type in server_types:
             server = server_type(products)
             client = Client(server)
-            self.assertEqual(5, client.get_total_price(2))
+            self.assertIsNone(client.get_total_price(2))
 
 
 if __name__ == '__main__':
