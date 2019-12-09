@@ -55,7 +55,7 @@ class ListServer(Server):
         if len(result) > self.n_max_returned_entries:
             self.to_many_products_error()
 
-        return result
+        return quicksort_product_list(result)
 
 
 class MapServer(Server):
@@ -69,7 +69,7 @@ class MapServer(Server):
     def to_many_products_error(self) -> TooManyProductsFoundError:
         raise TooManyProductsFoundError
 
-    def get_entries(self, n_letters: int = 1):
+    def get_entries(self, n_letters: int = 1) -> List[Product]:
         result = []
         for name, product in self.products_dict.items():
             search_pattern = re.compile('^[a-zA-Z]{{{n}}}\\d{{2,3}}$'.format(n=n_letters))
@@ -79,7 +79,7 @@ class MapServer(Server):
         if len(result) > self.n_max_returned_entries:
             self.to_many_products_error()
 
-        return result
+        return quicksort_product_list(result)
 
 
 class Client:
@@ -97,3 +97,31 @@ class Client:
         for elem in list_of_products:
             total_price = total_price + elem.price
         return total_price
+
+
+def quicksort_product_list(lst: List[Product]) -> List[Product]:
+    def quicksort_inplace(lst_in: List[Product], start_: int = 0, stop_: int = None) -> None:
+        i = start_
+        j = stop_
+        piv = lst_[(i+j)//2]
+        while i < j:
+            while lst_in[i].price < piv.price:
+                i = i + 1
+            while lst_in[j].price > piv.price:
+                j = j - 1
+            if i <= j:
+                lst_in[i], lst_in[j] = lst_in[j], lst_in[i]
+                i = i + 1
+                j = j - 1
+        if start_ < j:
+            quicksort_inplace(lst_in, start_, j)
+        if i < stop_:
+            quicksort_inplace(lst_in, i, stop_)
+
+    if len(lst) <= 0:
+        return lst
+    stop = len(lst) - 1
+    start = 0
+    lst_ = lst[:]
+    quicksort_inplace(lst_, start, stop)
+    return lst_
