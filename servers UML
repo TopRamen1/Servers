@@ -3,50 +3,50 @@ class Product {
 + name: str
 + price: double
 
-+ __init__(self, name_: str, price_: double)
-+ get_price(): double
-+ get_name(): str
++ _init__(self, name: str, price_: double)
++ __hash__(self)
++ __eq__(self, other)
 }
 
 class ServerErr{
++ __init__(self, msg):
 }
 
 class TooManyProductsFoundError{
-+ __init__(self, message)
++ __init__(self, msg)
 }
 
-
-class Client{
-
-}
 
 ServerErr <|-- TooManyProductsFoundError
 Exceptions <|-- ServerErr
 
 abstract class Server {
 + n_max_returned_entries: int
-+ {abstract} search_in_products(n: int): List[Product]
-+ {abstract} to_many_products_error(): ToManyProductsFoundError
++ {abstract} get_entries(self, n: int): List[Product]
++ {abstract} to_many_products_error(self): ToManyProductsFoundError
 }
+
 
 class ListServer {
 + products_list: List[Product]
 + __init__(self, products_list: List[Product])
-+ search_in_products(n_letters: int): List[Product]
-+ to_many_products_error(): ToManyProductsFoundError
++ get_entries(self, n_letters: int): List[Product]
++ to_many_products_error(self): ToManyProductsFoundError
 }
+
 
 class MapServer {
 + products_dict: Dict[Product]
 + __init__(self, products_list: List[Product])
-+ search_in_products(n_letters: int): Dict[str ,Product]
-+ to_many_products_error(): ToManyProductsFoundError
++ get_entries(self, n_letters: int): Dict[str ,Product]
++ to_many_products_error(self): ToManyProductsFoundError
 }
+
 
 class Client {
 + server_: Server
-+ __init__(self, server_: Server)
-+ get_total_price(n_letters: int):
++ _init__(self, server: Server)
++ get_total_price(self, n_letters: int):
 }
 
 Server <|-- ListServer
@@ -54,5 +54,5 @@ Server <|-- MapServer
 ListServer *-- Product
 MapServer *-- Product
 Client o-- Server
-Server ..> TooManyProductsFoundError : << uses >> 
+Server ..> TooManyProductsFoundError : << uses >>
 @enduml
