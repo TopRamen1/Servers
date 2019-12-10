@@ -96,6 +96,10 @@ class Client:
 
         for elem in list_of_products:
             total_price = total_price + elem.price
+
+        if total_price == 0:
+            return None
+
         return total_price
 
 
